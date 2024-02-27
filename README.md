@@ -27,4 +27,4 @@ This application allows users to create posts with images. The images can be vie
 ## Contact Information
 For any questions or concerns, please contact me at:
 - Email: bondoc.nash123@example.com
-- GitHub: [Your GitHub Username](https://github.com/NathanJargon)
+- GitHub: https://github.com/NathanJargon
