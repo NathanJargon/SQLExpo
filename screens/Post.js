@@ -41,7 +41,10 @@ export function Post({ post, onDelete }) {
         </View>
         <Text style={styles.postTitle}>{post.title}</Text>
         <Text style={styles.postDescription}>{post.description}</Text>
-        <Image source={{ uri: post.image }} style={styles.postImage} />
+        <Image 
+        source={post.image ? { uri: post.image } : require('../assets/empty.png')} 
+        style={styles.postImage} 
+        />
         <View style={styles.postActions}>
           <TouchableOpacity>
             <Image source={require('../assets/like.png')} style={styles.actionIcon} />
@@ -98,6 +101,9 @@ const styles = StyleSheet.create({
   postImage: {
     width: '100%',
     height: 200,
+    resizeMode: 'cover',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   postActions: {
     flexDirection: 'row',

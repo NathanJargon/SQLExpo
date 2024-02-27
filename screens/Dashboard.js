@@ -21,13 +21,20 @@ export default function Dashboard() {
       quality: 1,
     });
   
-    if (!result.cancelled) {
-      setNewPost(prevState => ({ ...prevState, image: result.uri }));
-      console.log(newPost);
+    if (result && !result.cancelled && result.assets) {
+      setNewPost(prevState => {
+        const updatedState = { ...prevState, image: result.assets[0].uri };
+        return updatedState;
+      });
     }
   };
 
-
+  /*
+  useEffect(() => {
+    console.log(newPost);
+  }, [newPost]);
+  */
+  
   useEffect(() => {
     setupDatabase()
       .then(() => getPosts())
@@ -39,10 +46,8 @@ export default function Dashboard() {
     const postToInsert = {
       ...newPost,
       userName: newPost.userName === '' ? 'User' : newPost.userName,
-      time: new Date().toISOString(), // set the time to the current time
+      time: new Date().toISOString(), 
     };
-
-    console.log(postToInsert);
   
     insertPost(postToInsert)
       .then(() => getPosts())
@@ -82,9 +87,6 @@ export default function Dashboard() {
         >
         <View style={styles.centeredView}>
             <View style={styles.modalView}>
-                <TouchableOpacity style={styles.backButton} onPress={() => setModalVisible(false)}>
-            <Image source={require('../assets/arrow_back.png')} style={styles.backImage} />
-            </TouchableOpacity>
             <TextInput
                 style={styles.input}
                 placeholder="Title"
@@ -99,7 +101,7 @@ export default function Dashboard() {
                 />
             <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
             {newPost.image ? (
-                <Image source={{ uri: newPost.image }} style={styles.imagePreview} />
+                <Image source={{ uri: newPost.image }} style={styles.imagePreview} resizeMode="cover" />
             ) : (
                 <Text>Pick an image</Text>
             )}
@@ -119,19 +121,9 @@ export default function Dashboard() {
 
 
 const styles = StyleSheet.create({
-    imagePreview: {
-        width: 200,
-        height: 200,
-        alignSelf: 'center',
-        margin: 10,
-        borderRadius: 10,
-      },
-      postImage: {
-        width: '100%',
-        height: 200,
-      },
     imagePicker: {
-        height: 40,
+        height: 200,
+        width: 200, 
         margin: 12,
         borderWidth: 1,
         padding: 10,
@@ -141,7 +133,15 @@ const styles = StyleSheet.create({
         borderColor: '#ccc',
         borderRadius: 10,
       },
-    
+      imagePreview: {
+        width: '112%',
+        height: '112%',
+        borderRadius: 10,
+      },
+      postImage: {
+        width: '100%',
+        height: 200,
+      },
     input: {
         height: 40,
         margin: 12,
