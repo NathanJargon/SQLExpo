@@ -14,7 +14,7 @@ export const setupDatabase = async () => {
       });
     });
   };
-  
+
   export const insertPost = async (post) => {
     return new Promise((resolve, reject) => {
       db.transaction(tx => {
@@ -53,3 +53,16 @@ export const deletePost = async (id) => {
     });
   });
 };
+
+export const updatePost = (post) => {
+    return new Promise((resolve, reject) => {
+      db.transaction(tx => {
+        tx.executeSql(
+          'UPDATE posts SET title = ?, description = ?, image = ? WHERE id = ?;',
+          [post.title, post.description, post.image, post.id],
+          (_, result) => resolve(result),
+          (_, error) => reject(error)
+        );
+      });
+    });
+  };

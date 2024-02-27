@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, ScrollView, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, Image, Modal, Button } from 'react-native';
 import * as SQLite from 'expo-sqlite';
 import { Post } from './Post';
-import { setupDatabase, insertPost, getPosts, deletePost } from './Database';
+import { setupDatabase, insertPost, getPosts, deletePost, updatePost } from './Database';
 import * as ImagePicker from 'expo-image-picker';
 
 const db = SQLite.openDatabase('db.db');
@@ -15,6 +15,21 @@ export default function Dashboard() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
+  const pickImageForEditingPost = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [16, 9],
+      quality: 1,
+    });
+  
+    if (!result.cancelled) {
+      setEditingPost(prevState => {
+        const updatedPost = { ...prevState, image: result.assets[0].uri };
+        return updatedPost;
+      });
+    }
+  };
 
   const handleEditPost = (post) => {
     setEditingPost(post);
@@ -22,7 +37,10 @@ export default function Dashboard() {
   };
 
   const handleSavePost = () => {
-    // Code to update the post in the database and in the local state
+    updatePost(editingPost)
+      .then(() => getPosts())
+      .then(posts => setPosts(posts))
+      .catch(error => console.log(error));
     setEditModalVisible(false);
     setEditingPost(null);
   };
@@ -84,10 +102,10 @@ export default function Dashboard() {
         <Text style={styles.headerText}>SQL POST SECTION</Text>
         <Text style={styles.subHeaderText}>BY Nathan Jargon</Text>
       </View>
-        <ScrollView>
-            {posts.slice().reverse().map(post => (
-                <Post key={post.id} post={post} onDelete={id => handleDeletePost(id)} />
-            ))}
+      <ScrollView>
+        {posts.slice().reverse().map(post => (
+            <Post key={post.id} post={post} onDelete={id => handleDeletePost(id)} onEdit={() => handleEditPost(post)} />
+        ))}
         </ScrollView>
       <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
         <Image source={require('../assets/plus.png')} style={{ width: 25, height: 25 }} />
@@ -152,11 +170,18 @@ export default function Dashboard() {
               value={editingPost ? editingPost.description : ''}
               onChangeText={description => setEditingPost(prevState => ({ ...prevState, description }))}
             />
+            <TouchableOpacity style={styles.imagePicker} onPress={pickImageForEditingPost}>
+            {editingPost && editingPost.image ? (
+                <Image source={{ uri: editingPost.image }} style={styles.imagePreview} resizeMode="cover" />
+            ) : (
+                <Text>Pick an image</Text>
+            )}
+            </TouchableOpacity>
             <TouchableOpacity style={styles.modalButton} onPress={handleSavePost}>
               <Text style={styles.modalButtonText}>Save Post</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.modalButton} onPress={() => setModalVisible(false)}>
-              <Text style={styles.modalButtonText}>Cancel</Text>
+            <TouchableOpacity style={styles.modalButton} onPress={() => setEditModalVisible(false)}>
+                <Text style={styles.modalButtonText}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>

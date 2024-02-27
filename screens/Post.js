@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions, Modal } from 'react-native';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import { formatDistanceToNow } from 'date-fns';
 
 const { width, height } = Dimensions.get('window');
 
 export function Post({ post, onDelete, onEdit }) {
-
+    const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [timeString, setTimeString] = useState('');
+    const { width, height } = Dimensions.get('window');
 
     useEffect(() => {
       const updateTimeString = () => {
@@ -44,10 +45,18 @@ export function Post({ post, onDelete, onEdit }) {
         </View>
         <Text style={styles.postTitle}>{post.title}</Text>
         <Text style={styles.postDescription}>{post.description}</Text>
+        <TouchableOpacity onPress={() => {
+        if (post.image) {
+            setImageModalVisible(true);
+        } else {
+            alert('Image is empty, please edit to add a picture.');
+        }
+        }}>
         <Image 
-        source={post.image ? { uri: post.image } : require('../assets/empty.png')} 
-        style={styles.postImage} 
+            source={post.image ? { uri: post.image } : require('../assets/empty.png')} 
+            style={styles.postImage} 
         />
+        </TouchableOpacity>
         <View style={styles.postActions}>
           <TouchableOpacity>
             <Image source={require('../assets/like.png')} style={styles.actionIcon} />
@@ -59,6 +68,24 @@ export function Post({ post, onDelete, onEdit }) {
             <Text style={styles.actionText}>Comment</Text>
           </TouchableOpacity>
         </View>
+        <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isImageModalVisible}
+        onRequestClose={() => {
+            setImageModalVisible(!isImageModalVisible);
+        }}
+        >
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+            <Image source={{ uri: post.image }} style={{ width: '80%', height: '80%' }} resizeMode="contain" />
+            <TouchableOpacity
+            style={{ marginTop: height * 0.02, borderRadius: 20, padding: width * 0.04, backgroundColor: 'white' }}
+            onPress={() => setImageModalVisible(!isImageModalVisible)}
+            >
+            <Text>Close</Text>
+            </TouchableOpacity>
+        </View>
+        </Modal>
       </View>
     );
 }
@@ -132,4 +159,42 @@ const styles = StyleSheet.create({
   postDescription: {
     marginVertical: 10,
   },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  fullImage: {
+    width: '90%',
+    height: '80%',
+    resizeMode: 'contain'
+  },
+  closeButton: {
+    backgroundColor: "#2196F3",
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+    marginTop: 15
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center"
+  }
 });
