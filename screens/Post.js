@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import { formatDistanceToNow } from 'date-fns';
@@ -6,13 +6,27 @@ import { formatDistanceToNow } from 'date-fns';
 const { width, height } = Dimensions.get('window');
 
 export function Post({ post, onDelete }) {
+
+    const [timeString, setTimeString] = useState('');
+
+    useEffect(() => {
+      const updateTimeString = () => {
+        setTimeString(formatDistanceToNow(new Date(post.time), { addSuffix: true }));
+      };
+  
+      updateTimeString();
+      const intervalId = setInterval(updateTimeString, 60000); 
+  
+      return () => clearInterval(intervalId); 
+    }, [post.time]);
+
     return (
       <View style={styles.postContainer}>
         <View style={styles.postHeader}>
           <Image source={require('../assets/user.png')} style={styles.userImage} />
           <View style={styles.headerContent}>
-            <Text style={styles.userName}>{post.userName}</Text>
-            <Text style={styles.postTime}>{formatDistanceToNow(new Date(post.time), { addSuffix: true })}</Text>
+            <Text style={styles.userName}>{post.userName || 'User'}</Text>
+            <Text style={styles.postTime}>{timeString}</Text>
           </View>
           <Menu>
             <MenuTrigger>
@@ -27,7 +41,7 @@ export function Post({ post, onDelete }) {
         </View>
         <Text style={styles.postTitle}>{post.title}</Text>
         <Text style={styles.postDescription}>{post.description}</Text>
-        <Image source={require('../assets/postImage.jpeg')} style={styles.postImage} />
+        <Image source={{ uri: post.image }} style={styles.postImage} />
         <View style={styles.postActions}>
           <TouchableOpacity>
             <Image source={require('../assets/like.png')} style={styles.actionIcon} />
