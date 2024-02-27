@@ -13,6 +13,20 @@ export default function Dashboard() {
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState({ title: '', description: '', image: '' });
   const [modalVisible, setModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editingPost, setEditingPost] = useState(null);
+
+  const handleEditPost = (post) => {
+    setEditingPost(post);
+    setEditModalVisible(true);
+  };
+
+  const handleSavePost = () => {
+    // Code to update the post in the database and in the local state
+    setEditModalVisible(false);
+    setEditingPost(null);
+  };
+
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -67,7 +81,8 @@ export default function Dashboard() {
   return (
     <>
       <View style={styles.header}>
-        <Text style={styles.headerText}>POST SECTION</Text>
+        <Text style={styles.headerText}>SQL POST SECTION</Text>
+        <Text style={styles.subHeaderText}>BY Nathan Jargon</Text>
       </View>
         <ScrollView>
             {posts.slice().reverse().map(post => (
@@ -115,12 +130,47 @@ export default function Dashboard() {
             </View>
         </View>
         </Modal>
+        <Modal
+        animationType="slide"
+        transparent={true}
+        visible={editModalVisible}
+        onRequestClose={() => {
+            setEditModalVisible(!editModalVisible);
+        }}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <TextInput
+              style={styles.input}
+              placeholder="Title"
+              value={editingPost ? editingPost.title : ''}
+              onChangeText={title => setEditingPost(prevState => ({ ...prevState, title }))}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Description"
+              value={editingPost ? editingPost.description : ''}
+              onChangeText={description => setEditingPost(prevState => ({ ...prevState, description }))}
+            />
+            <TouchableOpacity style={styles.modalButton} onPress={handleSavePost}>
+              <Text style={styles.modalButtonText}>Save Post</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.modalButton} onPress={() => setModalVisible(false)}>
+              <Text style={styles.modalButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </>
   );
 }
 
 
 const styles = StyleSheet.create({
+    subHeaderText: {
+        fontSize: 14,
+        color: '#666',
+      },
     imagePicker: {
         height: 200,
         width: 200, 

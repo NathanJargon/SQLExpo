@@ -5,7 +5,7 @@ import { formatDistanceToNow } from 'date-fns';
 
 const { width, height } = Dimensions.get('window');
 
-export function Post({ post, onDelete }) {
+export function Post({ post, onDelete, onEdit }) {
 
     const [timeString, setTimeString] = useState('');
 
@@ -33,9 +33,12 @@ export function Post({ post, onDelete }) {
               <Image source={require('../assets/three_dots.png')} style={styles.menuIcon} />
             </MenuTrigger>
             <MenuOptions customStyles={{ optionsContainer: { borderRadius: 10 } }}>
-                <MenuOption onSelect={() => onDelete(post.id)}>
-                    <Text style={styles.menuOptionText}>Delete</Text>
-                </MenuOption>
+            <MenuOption onSelect={() => onEdit(post.id)}>
+                <Text style={styles.menuOptionText1}>Edit</Text>
+            </MenuOption>
+            <MenuOption onSelect={() => onDelete(post.id)}>
+                <Text style={styles.menuOptionText2}>Delete</Text>
+            </MenuOption>
             </MenuOptions>
           </Menu>
         </View>
@@ -120,7 +123,10 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
   },
-  menuOptionText: {
+  menuOptionText1: {
+    color: 'black',
+  },
+  menuOptionText2: {
     color: 'red',
   },
   postDescription: {
